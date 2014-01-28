@@ -9,6 +9,7 @@ import Flite.Interp
 import Flite.Inline
 import Flite.Compile
 --import Flite.RedCompile
+import Flite.CantileverCompile
 import Flite.TypeChecker2
 import Flite.Flic
 import qualified Flite.RedFrontend
@@ -20,6 +21,7 @@ import System.Console.GetOpt
 data Flag =
     Desugar
   | CompileToC
+  | CompileToCantilever
   | Defunctionalise
   | CompileToRed Int Int Int Int Int
   | Inline (Maybe Int)
@@ -37,6 +39,7 @@ options :: [OptDescr Flag]
 options =
   [ Option ['d'] [] (NoArg Desugar) "desugar"
   , Option ['c'] [] (NoArg CompileToC) "compile to C"
+  , Option ['C'] [] (NoArg CompileToCantilever) "compile to Cantilever"
   , Option ['f'] [] (NoArg Defunctionalise) "make first-order"
   , Option ['r'] [] (OptArg red "MAXPUSH:APSIZE:MAXAPS:MAXLUTS:MAXREGS")
                     "compile to Reduceron templates"
@@ -76,6 +79,7 @@ run flags fileName =
          -- putStrLn $ pretty $ desugar inlineFlag p
          putStrLn $ prettyProg $ desugar inlineFlag p
        [CompileToC] -> putStrLn $ compile inlineFlag p
+       [CompileToCantilever] -> putStrLn $ canteleverCompile inlineFlag p
        [Defunctionalise] -> putStrLn $ prettyProg p
 {-       [CompileToRed slen alen napps nluts nregs] ->
         do let sa = StrictnessAnalysis `elem` flags
