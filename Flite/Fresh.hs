@@ -1,16 +1,31 @@
 module Flite.Fresh where
 
-import Control.Monad (replicateM)
+import Control.Applicative (Applicative(..))
+import Control.Monad (ap, liftM, replicateM)
 
 data Fresh a = Fresh { runFresh :: String -> Int -> (Int, a) }
 
 data FreshW a b = FreshW { runFreshW :: String -> Int -> ([a], Int, b) }
+
+instance Functor (FreshW a) where
+  fmap = liftM
+
+instance Applicative (FreshW a) where
+  pure  = return
+  (<*>) = ap
 
 instance Monad (FreshW a) where
   return a = FreshW (\s i -> ([], i, a))
   m >>= f  = FreshW (\s i -> case runFreshW m s i of
                                 (l, j, a) -> let (l', j', a') = runFreshW (f a) s j
                                              in (l ++ l', j', a'))
+
+instance Functor Fresh where
+  fmap = liftM
+
+instance Applicative Fresh where
+  pure  = return
+  (<*>) = ap
 
 instance Monad Fresh where
   return a = Fresh (\s i -> (i, a))

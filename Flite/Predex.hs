@@ -11,6 +11,7 @@ module Flite.Predex where
 
 import Data.List
 import Flite.Syntax
+import Control.Applicative (Applicative(..))
 import Control.Monad
 import Flite.Traversals
 import qualified Flite.RedSyntax as R
@@ -60,6 +61,13 @@ checkArg scope e = False
 -- A monad that allows one to count and bound the number of
 -- transformations that are applied during a computation.
 data Count a = Count { runCount :: Int -> (Int, a) }
+
+instance Functor Count where
+  fmap = liftM
+
+instance Applicative Count where
+  pure  = return
+  (<*>) = ap
 
 instance Monad Count where
   return a = Count $ \n -> (n, a)
